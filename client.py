@@ -1,12 +1,13 @@
 """pylint option block-disable"""
 
-import os
 import json
+import os
 import requests
 import paho.mqtt.client as mqtt
 
 # Constants
 INPUT_TOPIC_NAME = 'awsiot_to_localgateway'
+OUTPUT_TOPIC_NAME = 'localgateway_to_awsiot'
 HUE_API_IP = os.environ['HUE_API_IP']
 HUE_API_USER = os.environ['HUE_API_USER']
 HUE_API_BASE = 'http://' + HUE_API_IP + '/api/' + HUE_API_USER + '/'
@@ -26,9 +27,13 @@ def on_connect(client, userdata, flags, result):
 
 
 # Operations for message handler
-def get_state():
+def get_state(data):
     """Get state of all lights"""
     request_url = HUE_API_BASE + 'lights/'
+    
+    if 'lightId' in data:
+        request_url += str(data['lightId']) + '/'
+
     print('Request: ' + request_url)
     response = requests.get(request_url).json()
     return response
@@ -46,10 +51,12 @@ def on_message(mqtt_client, userdata, message):
     print('Received message: ' + str(message.payload))
     payload = json.loads(message.payload)
     operation = payload['operation']
+    data = payload['data']
 
-    response = OPERATION_FUNCTION_MAP[operation]()
+    response = OPERATION_FUNCTION_MAP[operation](data)
     print('Response: ' + str(response))
-    
+    MQTT_CLIENT.publish(OUTPUT_TOPIC_NAME, json.dumps(response))
+ 
 
 def main(): # pylint: disable=C0111
     MQTT_CLIENT.on_connect = on_connect
