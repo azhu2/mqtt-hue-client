@@ -61,10 +61,13 @@ def toggle_light(data):
 
     # Toggle state
     request_url = HUE_API_BASE + 'lights/' + str(light_id) + '/state/'
-    data = {'on': not light_on}
+    request_data = data
+    if 'on' not in data:
+        request_data['on'] = not light_on
+
     print('Request: ' + request_url)
-    print('Data: ' + str(data))
-    response = requests.put(request_url, data = json.dumps(data)).json()
+    print('Data: ' + str(request_data))
+    response = requests.put(request_url, data = json.dumps(request_data)).json()
     return response
 
 
