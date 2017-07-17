@@ -15,7 +15,7 @@ HUE_API_BASE = 'http://' + HUE_API_IP + '/api/' + HUE_API_USER + '/'
 # Service clients
 MQTT_CLIENT = mqtt.Client()
 
-def on_connect(client, userdata, flags, result):
+def on_connect(_client, _userdata, _flags, result):
     """Subscribe to input topic"""
 
     print('Connected ' + str(result))
@@ -45,7 +45,7 @@ OPERATION_FUNCTION_MAP = {
 }
 
 
-def on_message(mqtt_client, userdata, message):
+def on_message(_client, _userdata, message):
     """Handle messages"""
 
     print('Received message: ' + str(message.payload))
